@@ -1,34 +1,34 @@
-﻿$ErrorActionPreference="Stop"
-$ProgressPreference="SilentlyContinue"
+﻿$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
 
-$PHP_VERSIONS=@("8.1.34", "8.2.30", "8.3.29", "8.4.16", "8.5.0")
+$PHP_VERSIONS = @("8.1.34", "8.2.30", "8.3.29", "8.4.16", "8.5.0")
 
-$PHP_SDK_VER="2.4.0"
-$ARCH="x64"
+$PHP_SDK_VER = "2.4.0"
+$ARCH = "x64"
 
 #### NOTE: Tags with "v" prefixes behave weirdly in the GitHub API. They'll be stripped in some places but not others.
 #### Use commit hashes to avoid this.
 
-$LIBYAML_VER="0.2.5"
-$PTHREAD_W32_VER="3.0.0"
-$LEVELDB_MCPE_VER="1c7564468b41610da4f498430e795ca4de0931ff" #release not tagged
-$LIBDEFLATE_VER="96836d7d9d10e3e0d53e6edb54eb908514e336c4" #1.24 - see above note about "v" prefixes
+$LIBYAML_VER = "840b65c40675e2d06bf40405ad3f12dec7f35923" # Latest commit fixing CMake compatibility
+$PTHREAD_W32_VER = "3.0.0"
+$LEVELDB_MCPE_VER = "1c7564468b41610da4f498430e795ca4de0931ff" #release not tagged
+$LIBDEFLATE_VER = "96836d7d9d10e3e0d53e6edb54eb908514e336c4" #1.24 - see above note about "v" prefixes
 
-$PHP_PMMPTHREAD_VER="6.3.0"
-$PHP_YAML_VER="2.3.0"
-$PHP_CHUNKUTILS2_VER="0.3.5"
-$PHP_IGBINARY_VER="3.2.16"
-$PHP_LEVELDB_VER="88071eb1b1eae96af043229104b9d813f7cbe40c" #release not tagged
-$PHP_CRYPTO_VER="999b3c7edbc7f8ca4fdeb0bb4bbae488ad0daf07" #release not tagged
-$PHP_RECURSIONGUARD_VER="0.1.0"
-$PHP_MORTON_VER="0.1.2"
-$PHP_LIBDEFLATE_VER="0.2.1"
-$PHP_XXHASH_VER="0.2.0"
-$PHP_XDEBUG_VER="3.5.0"
-$PHP_ARRAYDEBUG_VER="0.2.1"
-$PHP_ENCODING_VER="1.0.0"
+$PHP_PMMPTHREAD_VER = "6.3.0"
+$PHP_YAML_VER = "2.3.0"
+$PHP_CHUNKUTILS2_VER = "0.3.5"
+$PHP_IGBINARY_VER = "3.2.16"
+$PHP_LEVELDB_VER = "88071eb1b1eae96af043229104b9d813f7cbe40c" #release not tagged
+$PHP_CRYPTO_VER = "999b3c7edbc7f8ca4fdeb0bb4bbae488ad0daf07" #release not tagged
+$PHP_RECURSIONGUARD_VER = "0.1.0"
+$PHP_MORTON_VER = "0.1.2"
+$PHP_LIBDEFLATE_VER = "0.2.1"
+$PHP_XXHASH_VER = "0.2.0"
+$PHP_XDEBUG_VER = "3.5.0"
+$PHP_ARRAYDEBUG_VER = "0.2.1"
+$PHP_ENCODING_VER = "1.0.0"
 
-$PHP_IGBINARY_VER_PHP85="3.2.17RC1"
+$PHP_IGBINARY_VER_PHP85 = "3.2.17RC1"
 
 function pm-echo {
     param ([string] $message)
@@ -89,9 +89,9 @@ function write-cached {
     write-status "using cache"
 }
 
-$log_file="$pwd\compile.log"
+$log_file = "$pwd\compile.log"
 echo "" > "$log_file"
-$outpath="$pwd"
+$outpath = "$pwd"
 
 pm-echo "PHP compiler for Windows"
 date >> "$log_file"
@@ -103,7 +103,8 @@ foreach ($dep in $script_dependencies) {
     $depInfo = Get-Command "$dep" -ErrorAction SilentlyContinue
     if ($depInfo -eq $null) {
         pm-fatal-error "$dep is required but can't be found in your PATH"
-    } else {
+    }
+    else {
         pm-echo "Found $dep in $($depInfo.Source)"
     }
 }
@@ -112,29 +113,30 @@ foreach ($dep in $script_dependencies) {
 
 pm-echo "Checking configuration options"
 
-$PHP_VERSION_BASE="auto"
-$PHP_VER=""
+$PHP_VERSION_BASE = "auto"
+$PHP_VER = ""
 if ($env:PHP_VERSION_BASE -ne $null) {
-    $PHP_VERSION_BASE=$env:PHP_VERSION_BASE
+    $PHP_VERSION_BASE = $env:PHP_VERSION_BASE
 }
 
-$PHP_DEBUG_BUILD=0
+$PHP_DEBUG_BUILD = 0
 if ($env:PHP_DEBUG_BUILD -eq 1) {
-	$PHP_DEBUG_BUILD=1
+    $PHP_DEBUG_BUILD = 1
 }
 
-$MSBUILD_CONFIGURATION="RelWithDebInfo"
+$MSBUILD_CONFIGURATION = "RelWithDebInfo"
 
 if ($PHP_DEBUG_BUILD -eq 0) {
-    $OUT_PATH_REL="Release"
-    $PHP_HAVE_DEBUG="enable-debug-pack"
+    $OUT_PATH_REL = "Release"
+    $PHP_HAVE_DEBUG = "enable-debug-pack"
     pm-echo "Building release binaries with debugging symbols"
-} else {
-    $OUT_PATH_REL="Debug"
-    $PHP_HAVE_DEBUG="enable-debug"
+}
+else {
+    $OUT_PATH_REL = "Debug"
+    $PHP_HAVE_DEBUG = "enable-debug"
 
     #I don't like this, but YAML will crash if it's not built with the same target as PHP
-    $MSBUILD_CONFIGURATION="Debug"
+    $MSBUILD_CONFIGURATION = "Debug"
     pm-echo "Building debug binaries"
 }
 
@@ -144,31 +146,33 @@ function php-version-id {
 
     $parts = $version.Split(".")
 
-	#TODO: patch is a pain because of suffixes and we don't really need it anyway
+    #TODO: patch is a pain because of suffixes and we don't really need it anyway
     $result = (([int]$parts[0]) * 10000) + (([int]$parts[1]) * 100)
     return $result
 }
 
-$PREFERRED_PHP_VERSION_BASE=""
+$env:PM_VERSION_MAJOR = 5
+$PREFERRED_PHP_VERSION_BASE = ""
 switch ($env:PM_VERSION_MAJOR) {
-    5 { $PREFERRED_PHP_VERSION_BASE="8.2" }
+    5 { $PREFERRED_PHP_VERSION_BASE = "8.2" }
     $null { pm-fatal-error "Please specify PocketMine-MP major version by setting the PM_VERSION_MAJOR environment variable" }
     default { pm-fatal-error "PocketMine-MP $PM_VERSION_MAJOR is not supported by this version of the build script" }
 }
 
-$PM_VERSION_MAJOR=$env:PM_VERSION_MAJOR
+$PM_VERSION_MAJOR = $env:PM_VERSION_MAJOR
 pm-echo "Compiling with configuration for PocketMine-MP $PM_VERSION_MAJOR"
 
 if ($PHP_VERSION_BASE -eq "auto") {
-    $PHP_VERSION_BASE=$PREFERRED_PHP_VERSION_BASE
-} elseif ($PHP_VERSION_BASE -ne $PREFERRED_PHP_VERSION_BASE) {
+    $PHP_VERSION_BASE = $PREFERRED_PHP_VERSION_BASE
+}
+elseif ($PHP_VERSION_BASE -ne $PREFERRED_PHP_VERSION_BASE) {
     pm-echo "[WARNING] $PHP_VERSION_BASE is not the default for PocketMine-MP $PM_VERSION_MAJOR"
     pm-echo "[WARNING] The build may fail, or you may not be able to use the resulting PHP binary"
 }
 
 foreach ($version in $PHP_VERSIONS) {
     if ($version -like "$PHP_VERSION_BASE.*") {
-        $PHP_VER=$version
+        $PHP_VER = $version
         break
     }
 }
@@ -179,54 +183,58 @@ if ($PHP_VER -eq "") {
 }
 
 #don't really need these except for dev versions
-$PHP_GIT_REV="php-$PHP_VER"
-$PHP_DISPLAY_VER="$PHP_VER"
+$PHP_GIT_REV = "php-$PHP_VER"
+$PHP_DISPLAY_VER = "$PHP_VER"
 
-$CMAKE_TARGET="Visual Studio 17 2022"
+$CMAKE_TARGET = "Visual Studio 17 2022"
 
-$VC_VER=""
-$SDL_TOOLSET_FLAG=""
-$CMAKE_TOOLSET_FLAG=""
+$VC_VER = ""
+$SDL_TOOLSET_FLAG = ""
+$CMAKE_TOOLSET_FLAG = ""
 
 $PHP_VERSION_ID = php-version-id $PHP_VER
 if ($PHP_VERSION_ID -ge 80400) {
-    $VC_VER="vs17"
-    $SDK_TOOLSET_FLAG=""
-    $CMAKE_TOOLSET_FLAG=""
-} else {
+    $VC_VER = "vs17"
+    $SDK_TOOLSET_FLAG = ""
+    $CMAKE_TOOLSET_FLAG = ""
+}
+else {
     #technically it's fine to build <8.4 with vs17, but this would make the binaries ABI-incompatible with community prebuilt extensions
-    $VC_VER="vs16"
-    $SDK_TOOLSET_FLAG="-s=14.29"
-    $CMAKE_TOOLSET_FLAG="-T v142"
+    $VC_VER = "vs16"
+    $SDK_TOOLSET_FLAG = "-s=14.29"
+    $CMAKE_TOOLSET_FLAG = "-T v142"
 }
 
 pm-echo "Selected PHP $PHP_VER ($PHP_VERSION_ID), SDK target $VC_VER ($SDK_TOOLSET_FLAG), CMake target $CMAKE_TARGET ($CMAKE_TOOLSET_FLAG)"
 
 if ($PHP_VERSION_ID -ge 80500) {
-    $PHP_IGBINARY_VER=$PHP_IGBINARY_VER_PHP85
+    $PHP_IGBINARY_VER = $PHP_IGBINARY_VER_PHP85
 }
-$PHP_JIT_ENABLE_ARG="no"
+$PHP_JIT_ENABLE_ARG = "no"
 if ($PHP_VERSION_ID -ge 80400 -or $env:PHP_JIT_SUPPORT -eq 1) {
-    $PHP_JIT_ENABLE_ARG="yes"
+    $PHP_JIT_ENABLE_ARG = "yes"
 }
 
 if ($PHP_JIT_ENABLE_ARG -eq "yes") {
     if ($PHP_VERSION_ID -lt 80400) {
         pm-echo "[WARNING] JIT in versions below PHP 8.4 is highly unstable and not recommended"
-    } else {
+    }
+    else {
         pm-echo "[WARNING] JIT in PHP 8.4 has not been tested, use it with caution"
     }
-} else {
+}
+else {
     pm-echo "JIT support in OPcache won't be compiled"
 }
 
 if ($env:SOURCES_PATH -ne $null) {
-    $BASE_PATH=$env:SOURCES_PATH
-} else {
-    $BASE_PATH="C:\pocketmine-php"
+    $BASE_PATH = $env:SOURCES_PATH
 }
-$PHP_SDK_PATH="$BASE_PATH\php-sdk-binary-tools-$PHP_SDK_VER"
-$SOURCES_PATH="$BASE_PATH\php-$PHP_DISPLAY_VER-$($OUT_PATH_REL.ToLower())"
+else {
+    $BASE_PATH = "C:\pocketmine-php"
+}
+$PHP_SDK_PATH = "$BASE_PATH\php-sdk-binary-tools-$PHP_SDK_VER"
+$SOURCES_PATH = "$BASE_PATH\php-$PHP_DISPLAY_VER-$($OUT_PATH_REL.ToLower())"
 
 pm-echo "Using path $SOURCES_PATH for PHP build sources"
 if (-not (Test-Path "$BASE_PATH")) {
@@ -241,19 +249,19 @@ if (Test-Path $SOURCES_PATH) {
     pm-echo "Deleting old PHP build workspace $SOURCES_PATH..."
     Remove-Item -Recurse -Force $SOURCES_PATH 2>&1
 }
-$LIB_BUILD_DIR="$BASE_PATH\deps-build-php-$PHP_VERSION_BASE-$($OUT_PATH_REL.ToLower())"
+$LIB_BUILD_DIR = "$BASE_PATH\deps-build-php-$PHP_VERSION_BASE-$($OUT_PATH_REL.ToLower())"
 
 if (Test-Path "$LIB_BUILD_DIR") {
     pm-echo "Deleting old deps build workspace $LIB_BUILD_DIR..."
     Remove-Item -Recurse -Force "$LIB_BUILD_DIR" >> $log_file 2>&1
 }
 
-$download_cache="$pwd\download_cache"
+$download_cache = "$pwd\download_cache"
 function download-file {
     param ([string] $url, [string] $prefix)
 
-    $cached_filename="$prefix-$($url.Substring($url.LastIndexOf("/") + 1))"
-    $cached_path="$download_cache\$cached_filename"
+    $cached_filename = "$prefix-$($url.Substring($url.LastIndexOf("/") + 1))"
+    $cached_path = "$download_cache\$cached_filename"
 
     if (!(Test-Path $download_cache)) {
         mkdir $download_cache >> $log_file 2>&1
@@ -261,7 +269,8 @@ function download-file {
 
     if (Test-Path $cached_path) {
         echo "Cache hit for URL: $url" >> $log_file
-    } else {
+    }
+    else {
         echo "Downloading file from $url to $cached_path" >> $log_file
         #download to a tmpfile first, so that we don't leave borked cache entries for later runs
         Invoke-WebRequest -Uri $url -OutFile "$download_cache/.temp" >> $log_file 2>&1
@@ -297,7 +306,8 @@ function download-sdk {
 
     if (Test-Path "$PHP_SDK_PATH") {
         write-cached
-    } else {
+    }
+    else {
         write-download
         $file = download-file "https://github.com/php/php-sdk-binary-tools/archive/refs/tags/php-sdk-$PHP_SDK_VER.zip" "php-sdk"
         write-extracting
@@ -315,11 +325,12 @@ function sdk-command {
     $wrap = "`"$PHP_SDK_PATH\phpsdk-starter.bat`" -c $VC_VER -a $ARCH $SDK_TOOLSET_FLAG -t task.bat 2>&1"
     echo "SDK wrapper command: $wrap" >> $log_file
     (& cmd.exe /c $wrap) >> $log_file
-    $result=$LASTEXITCODE
+    $result = $LASTEXITCODE
     if ($result -ne 0) {
         if ($errorMessage -eq "") {
             pm-fatal-error "Error code $result running SDK build command"
-        } else {
+        }
+        else {
             pm-fatal-error $errorMessage
         }
     }
@@ -346,6 +357,7 @@ function build-yaml {
     sdk-command "cmake -G `"$CMAKE_TARGET`" $CMAKE_TOOLSET_FLAG^`
         -DCMAKE_PREFIX_PATH=`"$DEPS_DIR`"^`
         -DCMAKE_INSTALL_PREFIX=`"$DEPS_DIR`"^`
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5^`
         -DBUILD_SHARED_LIBS=ON^`
         `"$pwd`" || exit 1"
     write-compile
@@ -488,6 +500,11 @@ function download-php-extensions {
     write-done
     Pop-Location
 
+    write-library "php-ext path_finding_ext" "1.0.0"
+    write-status "copying local extension"
+    Copy-Item -Recurse "$outpath\..\php_ext\path_finding_ext" "path_finding_ext" >> $log_file 2>&1
+    write-done
+
     Pop-Location
 }
 
@@ -497,7 +514,7 @@ pm-echo "Checking that SDK can find Visual Studio"
 #using CMAKE_TARGET for this is a bit meh but it's human readable at least
 sdk-command "exit /b 0" "Please install $CMAKE_TARGET"
 
-$DEPS_DIR="$BASE_PATH\deps-php-$PHP_VERSION_BASE-$($OUT_PATH_REL.ToLower())"
+$DEPS_DIR = "$BASE_PATH\deps-php-$PHP_VERSION_BASE-$($OUT_PATH_REL.ToLower())"
 #custom libs depend on some standard libs, so prepare these first
 #a bit annoying because this part of the build is slow and makes it take longer to find problems
 download-php-deps
@@ -540,6 +557,7 @@ sdk-command "configure^`
     --enable-encoding=shared^`
     --enable-fileinfo=shared^`
     --enable-filter^`
+    --enable-path-finding-ext=shared^`
     --enable-hash^`
     --enable-igbinary=shared^`
     --enable-json^`
@@ -609,7 +627,7 @@ if (!(Test-Path $php_exe)) {
 }
 write-status "generating php.ini"
 
-$php_ini="$outpath\bin\php\php.ini"
+$php_ini = "$outpath\bin\php\php.ini"
 
 #all this work to make PS output utf-8/ascii instead of utf-16 :(
 Out-File -FilePath $php_ini -Encoding ascii -InputObject ";Custom PocketMine-MP php.ini file"
@@ -644,6 +662,7 @@ append-file-utf8 "extension=php_fileinfo.dll" $php_ini
 append-file-utf8 "extension=php_gd.dll" $php_ini
 append-file-utf8 "extension=php_mysqli.dll" $php_ini
 append-file-utf8 "extension=php_sqlite3.dll" $php_ini
+append-file-utf8 "extension=php_path_finding_ext.dll" $php_ini
 append-file-utf8 ";Optional extensions, supplied for debugging" $php_ini
 append-file-utf8 "extension=php_recursionguard.dll" $php_ini
 append-file-utf8 "recursionguard.enabled=0 ;disabled due to minor performance impact, only enable this if you need it for debugging" $php_ini
