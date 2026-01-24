@@ -1,0 +1,62 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-01-24T12:00:00+00:00",
+    "name": "PHP Compiler (PocketMine)",
+    "author": "sylenia@skyblock.local",
+    "description": "Compile PHP binaries for PocketMine-MP. Upload PHP-Binaries/ at root and extensions in /extension/",
+    "features": null,
+    "docker_images": {
+        "GCC Bookworm": "gcc:bookworm"
+    },
+    "file_denylist": [],
+    "startup": "cd /home/container/PHP-Binaries && chmod +x compile.sh && bash ./compile.sh -j{{THREADS}} -P{{PM_VERSION}} {{EXTRA_FLAGS}}",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"You should start the server now\"\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\napt-get update\napt-get install -y make autoconf automake m4 gzip bzip2 bison g++ git cmake pkg-config re2c libtool libtool-bin wget curl ca-certificates\n\nmkdir -p /mnt/server/PHP-Binaries\nmkdir -p /mnt/server/extension\n\necho \"-----------------------------------------\"\necho \"Installation complete!\"\necho \"\"\necho \"Structure attendue:\"\necho \"/home/container/\"\necho \"├── PHP-Binaries/\"\necho \"│   └── compile.sh\"\necho \"└── extension/\"\necho \"    └── path_finding_ext/\"\necho \"\"\necho \"Uploadez vos fichiers puis lancez le serveur.\"\necho \"-----------------------------------------\"",
+            "container": "ghcr.io/parkervcp/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Compilation Threads",
+            "description": "Nombre de threads pour la compilation.",
+            "env_variable": "THREADS",
+            "default_value": "4",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:1,32",
+            "field_type": "text"
+        },
+        {
+            "name": "PocketMine-MP Version",
+            "description": "Version majeure de PocketMine-MP (5 pour PM5).",
+            "env_variable": "PM_VERSION",
+            "default_value": "5",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:5,5",
+            "field_type": "text"
+        },
+        {
+            "name": "Extra Flags",
+            "description": "Flags additionnels: -g (GD), -d (debug), -J (JIT), -z 8.3 (version PHP)",
+            "env_variable": "EXTRA_FLAGS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:255",
+            "field_type": "text"
+        }
+    ]
+}

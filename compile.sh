@@ -1121,6 +1121,10 @@ write_out "PHP" "Downloading additional extensions..."
 
 get_github_extension "pmmpthread" "$EXT_PMMPTHREAD_VERSION" "pmmp" "ext-pmmpthread"
 
+write_library "path_finding_ext" "local"
+write_status "copying"
+cp -r "$DIR/../extension/path_finding_ext" "$BUILD_DIR/php/ext/path_finding_ext"
+write_done
 
 get_github_extension "yaml" "$EXT_YAML_VERSION" "php" "pecl-file_formats-yaml"
 #get_pecl_extension "yaml" "$EXT_YAML_VERSION"
@@ -1271,6 +1275,7 @@ $HAS_GD \
 --with-leveldb="$INSTALL_DIR" \
 --without-readline \
 $HAS_DEBUG \
+--enable-path-finding-ext \
 --enable-chunkutils2 \
 --enable-morton \
 --enable-mbstring \
